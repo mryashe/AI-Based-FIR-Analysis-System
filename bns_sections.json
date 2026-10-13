@@ -1,0 +1,60 @@
+[
+  {
+    "section": "FILL_FROM_OFFICIAL_BNS",
+    "title": "Theft",
+    "description": "Dishonestly taking movable property out of someone's possession without their consent.",
+    "punishment": "FILL_FROM_OFFICIAL_BNS",
+    "keywords": [
+      "stole",
+      "stolen",
+      "pickpocket",
+      "snatched",
+      "jewellery",
+      "चोरी",
+      "चोरले",
+      "दागिने"
+    ]
+  },
+  {
+    "section": "FILL_FROM_OFFICIAL_BNS",
+    "title": "House-breaking by night",
+    "description": "Entering or breaking into a house after sunset and before sunrise to commit an offence.",
+    "punishment": "FILL_FROM_OFFICIAL_BNS",
+    "keywords": [
+      "broke into house",
+      "night",
+      "burglary",
+      "घरफोडी",
+      "रात्री",
+      "घुसले"
+    ]
+  },
+  {
+    "section": "FILL_FROM_OFFICIAL_BNS",
+    "title": "Voluntarily causing hurt",
+    "description": "Intentionally causing bodily pain, disease or infirmity to another person.",
+    "punishment": "FILL_FROM_OFFICIAL_BNS",
+    "keywords": [
+      "beat",
+      "hit",
+      "slapped",
+      "attacked",
+      "मारहाण",
+      "मारले"
+    ]
+  },
+  {
+    "section": "FILL_FROM_OFFICIAL_BNS",
+    "title": "Cheating",
+    "description": "Deceiving a person to dishonestly make them hand over property or money.",
+    "punishment": "FILL_FROM_OFFICIAL_BNS",
+    "keywords": [
+      "fraud",
+      "cheated",
+      "fake",
+      "online scam",
+      "फसवणूक",
+      "फसवले"
+    ]
+  }
+]

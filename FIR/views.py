@@ -34,7 +34,7 @@ def _get_engine():
 
 @ensure_csrf_cookie
 def home(request):
-    return render(request, "analyzer/index.html")
+    return render(request, "index.html")
 
 
 @require_POST
