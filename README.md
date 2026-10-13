@@ -41,16 +41,6 @@ At FIR registration, the applicable BNS sections are not always known immediatel
 | Database | MySQL / MongoDB |
 | Explainability | XAI methods |
 
-## 🚀 Quick Start
-
-```bash
-git clone https://github.com/<your-username>/fir-bns-analyzer.git
-cd fir-bns-analyzer
-pip install -r requirements.txt
-python main.py
-```
-
-*(Placeholder commands: update to match your implementation.)*
 
 ## 🧪 Example
 
