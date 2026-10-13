@@ -1,0 +1,1001 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI-Based FIR Analysis System | BNS Section Identifier</title>
+  <meta name="description" content="Describe an incident in plain language and get suggested Bharatiya Nyaya Sanhita (BNS) sections with explanations. Academic prototype.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind (CDN build, fine for a project demo. For production use the Tailwind CLI) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              50: '#eef3fb', 100: '#d9e4f5', 200: '#b9c8e0', 600: '#1f4a8f',
+              700: '#173b75', 800: '#102c58', 900: '#0b2040'
+            },
+            saffron: { DEFAULT: '#ff9933', 600: '#e07b0a' },
+            indgreen: '#138808'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="{% static 'static/style.css' %}">
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- ===================== SVG ICON SPRITE ===================== -->
+  <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><rect x="7" y="14" width="10" height="7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v15H6a2 2 0 0 0-2 2z"/><path d="M4 20a2 2 0 0 0 2 2h13v-4M9 7h6"/></symbol>
+    <symbol id="i-gavel" viewBox="0 0 24 24"><g transform="rotate(-45 12 12)"><rect x="5" y="3" width="14" height="6" rx="1.2"/><path d="M12 9v11"/></g><path d="M4 21h9"/></symbol>
+    <symbol id="i-scales" viewBox="0 0 24 24"><path d="M12 3v17M7 20h10M4 7h16"/><path d="M4 7l-2.5 6a3 3 0 0 0 5 0zM20 7l-2.5 6a3 3 0 0 0 5 0z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18.5v.01"/></symbol>
+  </svg>
+
+  <a href="#analyze" class="skip-link" data-i18n="skip">Skip to main content</a>
+
+  <!-- ===================== TOP ACCESSIBILITY BAR ===================== -->
+  <div class="bg-slate-100 border-b border-slate-300 text-xs text-slate-700">
+    <div class="max-w-7xl mx-auto px-4 py-1.5 flex flex-wrap items-center justify-between gap-2">
+      <p class="flex items-center gap-1.5 font-medium">
+        <svg class="ico w-4 h-4 text-saffron-600"><use href="#i-alert"/></svg>
+        <span data-i18n="notice">Prototype for academic demonstration. This is not an official Government of India website.</span>
+      </p>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1" role="group" aria-label="Text size">
+          <button id="fs-down" class="w-7 h-7 rounded border border-slate-300 bg-white font-semibold hover:bg-navy-50" aria-label="Decrease text size">A-</button>
+          <button id="fs-reset" class="w-7 h-7 rounded border border-slate-300 bg-white font-semibold hover:bg-navy-50" aria-label="Reset text size">A</button>
+          <button id="fs-up" class="w-7 h-7 rounded border border-slate-300 bg-white font-semibold hover:bg-navy-50" aria-label="Increase text size">A+</button>
+        </div>
+        <button id="contrast-toggle" class="h-7 px-2 rounded border border-slate-300 bg-white font-semibold hover:bg-navy-50 flex items-center gap-1" aria-pressed="false">
+          <svg class="ico w-4 h-4"><use href="#i-eye"/></svg><span>Contrast</span>
+        </button>
+        <label class="flex items-center gap-1">
+          <svg class="ico w-4 h-4"><use href="#i-globe"/></svg>
+          <span class="sr-only">Language</span>
+          <select id="lang-select" class="h-7 rounded border border-slate-300 bg-white px-1 font-medium">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="mr">मराठी</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tricolor stripe -->
+  <div class="flex h-1.5" aria-hidden="true">
+    <div class="flex-1 bg-saffron"></div>
+    <div class="flex-1 bg-white border-y border-slate-200"></div>
+    <div class="flex-1 bg-indgreen"></div>
+  </div>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+      <a href="#home" class="flex items-center gap-4 min-w-0">
+        <span class="shrink-0 w-14 h-14 rounded-full bg-navy-900 text-saffron grid place-items-center ring-4 ring-navy-100">
+          <svg class="ico w-8 h-8" style="stroke-width:1.6"><use href="#i-scales"/></svg>
+        </span>
+        <span class="min-w-0">
+          <span class="block font-heading text-lg sm:text-2xl font-bold text-navy-900 leading-tight" data-i18n="title">AI-Based FIR Analysis System</span>
+          <span class="block text-xs sm:text-sm text-slate-600" data-i18n="subtitle">Automatic identification of applicable BNS sections</span>
+        </span>
+      </a>
+      <div class="hidden md:block text-right text-sm text-slate-600">
+        <p class="font-semibold text-navy-800">Bharatiya Nyaya Sanhita</p>
+        <p id="today" class="text-xs"></p>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <nav class="sticky top-0 z-40 bg-navy-900 text-white shadow-md" aria-label="Main navigation">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between">
+        <ul class="hidden md:flex items-center">
+          <li><a class="nav-link block px-4 py-3 text-sm font-medium hover:bg-navy-700 border-b-4 border-transparent hover:border-saffron" href="#home" data-i18n="nav_home">Home</a></li>
+          <li><a class="nav-link block px-4 py-3 text-sm font-medium hover:bg-navy-700 border-b-4 border-transparent hover:border-saffron" href="#analyze" data-i18n="nav_analyze">Analyze Complaint</a></li>
+          <li><a class="nav-link block px-4 py-3 text-sm font-medium hover:bg-navy-700 border-b-4 border-transparent hover:border-saffron" href="#how" data-i18n="nav_how">How It Works</a></li>
+          <li><a class="nav-link block px-4 py-3 text-sm font-medium hover:bg-navy-700 border-b-4 border-transparent hover:border-saffron" href="#features" data-i18n="nav_features">Features</a></li>
+          <li><a class="nav-link block px-4 py-3 text-sm font-medium hover:bg-navy-700 border-b-4 border-transparent hover:border-saffron" href="#faq" data-i18n="nav_faq">FAQ</a></li>
+        </ul>
+        <button id="menu-btn" class="md:hidden flex items-center gap-2 py-3 text-sm font-medium" aria-expanded="false" aria-controls="mobile-menu">
+          <svg class="ico w-6 h-6"><use href="#i-menu"/></svg> Menu
+        </button>
+        <a href="#analyze" class="hidden md:inline-flex items-center gap-2 my-1.5 px-4 py-1.5 rounded bg-saffron text-navy-900 text-sm font-semibold hover:bg-saffron-600 hover:text-white transition">
+          <svg class="ico w-4 h-4"><use href="#i-bolt"/></svg><span data-i18n="cta">Start Analysis</span>
+        </a>
+      </div>
+      <ul id="mobile-menu" class="hidden md:hidden pb-3 border-t border-white/10">
+        <li><a class="block px-2 py-2.5 text-sm" href="#home" data-i18n="nav_home">Home</a></li>
+        <li><a class="block px-2 py-2.5 text-sm" href="#analyze" data-i18n="nav_analyze">Analyze Complaint</a></li>
+        <li><a class="block px-2 py-2.5 text-sm" href="#how" data-i18n="nav_how">How It Works</a></li>
+        <li><a class="block px-2 py-2.5 text-sm" href="#features" data-i18n="nav_features">Features</a></li>
+        <li><a class="block px-2 py-2.5 text-sm" href="#faq" data-i18n="nav_faq">FAQ</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ===================== NOTICE MARQUEE ===================== -->
+  <div class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto flex items-stretch text-sm">
+      <span class="shrink-0 bg-saffron text-navy-900 font-bold px-3 py-2 uppercase tracking-wide text-xs flex items-center" data-i18n="latest">Notice</span>
+      <div class="marquee-wrap overflow-hidden flex-1 py-2 px-3" aria-label="Notices">
+        <div class="marquee-track">
+          <span class="pr-16" data-i18n="marquee">Decision-support tool only. Suggested sections must be verified by a qualified police officer or legal professional before registering an FIR.</span>
+          <span class="pr-16" aria-hidden="true" data-i18n="marquee">Decision-support tool only. Suggested sections must be verified by a qualified police officer or legal professional before registering an FIR.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main id="main">
+
+    <!-- ===================== HERO ===================== -->
+    <section id="home" class="hero-bg text-white">
+      <div class="relative max-w-7xl mx-auto px-4 py-12 lg:py-20 grid lg:grid-cols-2 gap-12 items-center">
+        <div class="reveal">
+          <p class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase">
+            <svg class="ico w-4 h-4 text-saffron"><use href="#i-shield"/></svg>
+            <span data-i18n="hero_tag">Decision-support for FIR registration</span>
+          </p>
+          <h1 class="mt-5 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight" data-i18n="hero_h">Know the applicable BNS sections, instantly.</h1>
+          <p class="mt-5 text-base sm:text-lg text-navy-100 max-w-xl" data-i18n="hero_p">Describe the incident in simple language. The system suggests relevant sections with a plain-language explanation and the reason behind each suggestion.</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="#analyze" class="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-saffron text-navy-900 font-semibold hover:bg-saffron-600 hover:text-white transition shadow-lg">
+              <svg class="ico w-5 h-5"><use href="#i-search"/></svg><span data-i18n="cta">Start Analysis</span>
+            </a>
+            <a href="#how" class="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-white/40 hover:bg-white/10 transition font-semibold">
+              <svg class="ico w-5 h-5"><use href="#i-book"/></svg><span data-i18n="nav_how">How It Works</span>
+            </a>
+          </div>
+
+          <dl class="mt-10 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-xl">
+            <div class="border-l-2 border-saffron pl-3">
+              <dt class="text-2xl font-bold" data-count="3">0</dt>
+              <dd class="text-xs text-navy-100" data-i18n="st_lang">Input languages</dd>
+            </div>
+            <div class="border-l-2 border-saffron pl-3">
+              <dt class="text-2xl font-bold" data-count="6">0</dt>
+              <dd class="text-xs text-navy-100" data-i18n="st_steps">Processing steps</dd>
+            </div>
+            <div class="border-l-2 border-saffron pl-3">
+              <dt class="text-2xl font-bold">Top-K</dt>
+              <dd class="text-xs text-navy-100" data-i18n="st_rank">Ranked suggestions</dd>
+            </div>
+            <div class="border-l-2 border-saffron pl-3">
+              <dt class="text-2xl font-bold">XAI</dt>
+              <dd class="text-xs text-navy-100" data-i18n="st_xai">Reason for each match</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Law illustration -->
+        <div class="reveal relative mx-auto w-full max-w-md" aria-hidden="true">
+          <div class="float-slow rounded-3xl bg-white/10 border border-white/20 backdrop-blur-sm p-8">
+            <div class="rounded-2xl bg-navy-900/60 border border-white/10 p-6">
+              <svg viewBox="0 0 200 200" class="w-full h-auto text-saffron" fill="currentColor" stroke="currentColor">
+                <circle cx="100" cy="100" r="92" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+                <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="3 5"/>
+                <circle cx="100" cy="26" r="7" stroke="none"/>
+                <rect x="97" y="30" width="6" height="128" rx="2" stroke="none"/>
+                <rect x="62" y="166" width="76" height="10" rx="3" stroke="none"/>
+                <rect x="78" y="156" width="44" height="10" rx="3" stroke="none"/>
+                <g class="scales-swing" style="color:#fff">
+                  <rect x="35" y="43" width="130" height="6" rx="3" fill="currentColor" stroke="none"/>
+                  <g fill="none" stroke-width="1.5" stroke="currentColor">
+                    <path d="M40 49 L16 100 M40 49 L64 100 M160 49 L136 100 M160 49 L184 100"/>
+                  </g>
+                  <path d="M14 100 H66 A26 20 0 0 1 14 100 Z" fill="#ff9933" stroke="none"/>
+                  <path d="M134 100 H186 A26 20 0 0 1 134 100 Z" fill="#ff9933" stroke="none"/>
+                </g>
+              </svg>
+              <p class="mt-3 text-center font-heading text-lg text-white">सत्यमेव जयते<span class="sr-only"> (decorative)</span></p>
+            </div>
+          </div>
+          <div class="float-delay absolute -left-3 top-8 bg-white text-navy-900 rounded-lg shadow-xl px-3 py-2 text-xs font-semibold flex items-center gap-2">
+            <svg class="ico w-4 h-4 text-indgreen"><use href="#i-shield"/></svg> Explainable
+          </div>
+          <div class="float-slow absolute -right-3 top-1/2 bg-white text-navy-900 rounded-lg shadow-xl px-3 py-2 text-xs font-semibold flex items-center gap-2">
+            <svg class="ico w-4 h-4 text-navy-700"><use href="#i-globe"/></svg> Multilingual
+          </div>
+          <div class="float-delay absolute left-6 -bottom-3 bg-white text-navy-900 rounded-lg shadow-xl px-3 py-2 text-xs font-semibold flex items-center gap-2">
+            <svg class="ico w-4 h-4 text-saffron-600"><use href="#i-bolt"/></svg> Instant
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ANALYZER ===================== -->
+    <section id="analyze" class="max-w-7xl mx-auto px-4 py-14">
+      <div class="reveal">
+        <h2 class="section-title text-2xl sm:text-3xl font-bold text-navy-900" data-i18n="analyze_h">Describe the incident</h2>
+      </div>
+
+      <div class="mt-8 grid lg:grid-cols-5 gap-8">
+        <!-- Input card -->
+        <div class="lg:col-span-3 gov-card card-accent p-5 sm:p-6 reveal">
+          <label for="complaint" class="block text-sm font-semibold text-navy-800 mb-2" data-i18n="analyze_label">Incident description (type or speak)</label>
+          <textarea id="complaint" class="complaint-box w-full rounded-lg border border-slate-300 bg-white p-4 text-base" maxlength="2000" data-i18n-ph="placeholder" placeholder="Example: A person broke into my house at night and stole jewellery."></textarea>
+
+          <div class="mt-2 flex items-center justify-between text-xs text-slate-500">
+            <span id="mic-status" aria-live="polite"></span>
+            <span><span id="char-count">0</span> / 2000</span>
+          </div>
+
+          <div id="form-error" class="hidden mt-3 rounded-md border border-red-300 bg-red-50 text-red-800 text-sm px-3 py-2" role="alert"></div>
+
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <button id="analyze-btn" class="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-navy-800 text-white font-semibold hover:bg-navy-700 transition disabled:opacity-60 disabled:cursor-not-allowed">
+              <svg class="ico w-5 h-5" id="analyze-ico"><use href="#i-search"/></svg>
+              <span class="spinner hidden" id="analyze-spin"></span>
+              <span id="analyze-label" data-i18n="btn_analyze">Analyze</span>
+            </button>
+            <button id="mic-btn" type="button" class="inline-flex items-center gap-2 px-4 py-3 rounded-md border border-navy-700 text-navy-800 font-semibold hover:bg-navy-50 transition">
+              <svg class="ico w-5 h-5"><use href="#i-mic"/></svg><span data-i18n="btn_mic">Speak</span>
+            </button>
+            <button id="clear-btn" type="button" class="px-4 py-3 rounded-md text-slate-600 hover:bg-slate-100 font-medium transition" data-i18n="btn_clear">Clear</button>
+          </div>
+
+          <div class="mt-6 border-t border-slate-200 pt-4">
+            <p class="text-sm font-semibold text-navy-800 mb-2" data-i18n="examples">Try an example</p>
+            <div class="flex flex-wrap gap-2" id="example-chips">
+              <button class="chip px-3 py-1.5 text-xs rounded-full border border-navy-200 bg-navy-50 text-navy-800 hover:bg-navy-100 transition" data-ex="A person broke into my house at night and stole jewellery.">Night house theft</button>
+              <button class="chip px-3 py-1.5 text-xs rounded-full border border-navy-200 bg-navy-50 text-navy-800 hover:bg-navy-100 transition" data-ex="He cheated me of 50,000 rupees by sending a fake online offer.">Online cheating</button>
+              <button class="chip px-3 py-1.5 text-xs rounded-full border border-navy-200 bg-navy-50 text-navy-800 hover:bg-navy-100 transition" data-ex="Two men beat me with sticks near the market and threatened to kill me.">Assault and threat</button>
+              <button class="chip px-3 py-1.5 text-xs rounded-full border border-navy-200 bg-navy-50 text-navy-800 hover:bg-navy-100 transition" data-ex="रात्री माझ्या घरात कोणीतरी घुसले आणि दागिने चोरून नेले.">मराठी उदाहरण</button>
+              <button class="chip px-3 py-1.5 text-xs rounded-full border border-navy-200 bg-navy-50 text-navy-800 hover:bg-navy-100 transition" data-ex="रात में किसी ने मेरे घर में घुसकर गहने चुरा लिए।">हिन्दी उदाहरण</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Side panel -->
+        <aside class="lg:col-span-2 space-y-6 reveal">
+          <div class="gov-card p-5">
+            <h3 class="font-heading text-lg font-bold text-navy-900 flex items-center gap-2">
+              <svg class="ico w-5 h-5 text-saffron-600"><use href="#i-doc"/></svg><span data-i18n="tips_h">Tips for a good description</span>
+            </h3>
+            <ul class="mt-3 space-y-2 text-sm text-slate-700 list-disc pl-5">
+              <li data-i18n="tip1">Say what happened, in order.</li>
+              <li data-i18n="tip2">Mention the place and time if you know them.</li>
+              <li data-i18n="tip3">Mention any property taken, damaged, or any injury caused.</li>
+              <li data-i18n="tip4">Mention any threat, force, or false promise used.</li>
+            </ul>
+          </div>
+          <div class="gov-card p-5 bg-navy-900 text-white border-navy-900">
+            <div class="flex items-center gap-4">
+              <svg class="ico w-12 h-12 text-saffron" style="stroke-width:1.4"><use href="#i-gavel"/></svg>
+              <div>
+                <p class="font-heading font-bold text-lg" data-i18n="aside_h">Always verify</p>
+                <p class="text-sm text-navy-100" data-i18n="aside_p">Suggestions are a starting point. The officer in charge decides the final sections.</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Results -->
+      <div id="results-wrap" class="mt-10 hidden" aria-live="polite">
+        <div id="demo-banner" class="hidden mb-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 text-sm px-4 py-3 flex items-start gap-2">
+          <svg class="ico w-5 h-5 mt-0.5 shrink-0"><use href="#i-alert"/></svg>
+          <span data-i18n="demo_banner">Demo mode: backend not connected. Showing sample results with placeholder section numbers.</span>
+        </div>
+        <div id="results"></div>
+      </div>
+    </section>
+
+    <!-- ===================== LAW IMAGERY BAND ===================== -->
+    <section class="pillars-bg border-y border-slate-200" aria-hidden="true">
+      <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8 items-center">
+        <div class="reveal flex justify-center">
+          <svg viewBox="0 0 220 170" class="w-56 h-auto text-navy-800" fill="currentColor">
+            <polygon points="110,10 205,52 15,52"/>
+            <rect x="20" y="56" width="180" height="8" rx="2"/>
+            <rect x="34" y="68" width="16" height="64" rx="2"/>
+            <rect x="68" y="68" width="16" height="64" rx="2"/>
+            <rect x="102" y="68" width="16" height="64" rx="2"/>
+            <rect x="136" y="68" width="16" height="64" rx="2"/>
+            <rect x="170" y="68" width="16" height="64" rx="2"/>
+            <rect x="20" y="134" width="180" height="8" rx="2"/>
+            <rect x="10" y="144" width="200" height="8" rx="2"/>
+            <rect x="2" y="154" width="216" height="8" rx="2"/>
+            <circle cx="110" cy="35" r="7" fill="#ff9933"/>
+          </svg>
+        </div>
+        <div class="reveal md:col-span-2">
+          <h2 class="font-heading text-2xl sm:text-3xl font-bold text-navy-900" data-i18n="band_h">From a plain-language story to the right section of law</h2>
+          <p class="mt-3 text-slate-700 max-w-2xl" data-i18n="band_p">With BNS replacing the IPC, officers and citizens are still learning the new section numbers. This tool helps bridge that gap at the very first step of a criminal case.</p>
+          <div class="mt-5 flex items-center gap-6 text-navy-700">
+            <svg class="ico w-10 h-10"><use href="#i-scales"/></svg>
+            <svg class="ico w-10 h-10"><use href="#i-gavel"/></svg>
+            <svg class="ico w-10 h-10"><use href="#i-book"/></svg>
+            <svg class="ico w-10 h-10"><use href="#i-shield"/></svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== HOW IT WORKS ===================== -->
+    <section id="how" class="max-w-7xl mx-auto px-4 py-14">
+      <div class="reveal">
+        <h2 class="section-title text-2xl sm:text-3xl font-bold text-navy-900" data-i18n="how_h">How it works</h2>
+      </div>
+      <ol class="timeline mt-10 space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
+        <li class="reveal relative pl-14 lg:pl-0">
+          <span class="absolute left-0 top-0 lg:static w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold ring-4 ring-saffron/40 mb-0 lg:mb-3">1</span>
+          <div class="gov-card p-5 lg:h-40"><h3 class="font-heading font-bold text-navy-900">Enter the description</h3><p class="mt-1 text-sm text-slate-600">Type or speak the incident in English, Hindi or Marathi.</p></div>
+        </li>
+        <li class="reveal relative pl-14 lg:pl-0">
+          <span class="absolute left-0 top-0 lg:static w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold ring-4 ring-saffron/40 mb-0 lg:mb-3">2</span>
+          <div class="gov-card p-5 lg:h-40"><h3 class="font-heading font-bold text-navy-900">Text is cleaned</h3><p class="mt-1 text-sm text-slate-600">NLP preprocessing prepares the text for the AI model.</p></div>
+        </li>
+        <li class="reveal relative pl-14 lg:pl-0">
+          <span class="absolute left-0 top-0 lg:static w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold ring-4 ring-saffron/40 mb-0 lg:mb-3">3</span>
+          <div class="gov-card p-5 lg:h-40"><h3 class="font-heading font-bold text-navy-900">AI understands meaning</h3><p class="mt-1 text-sm text-slate-600">The model detects the crime type and key terms in the story.</p></div>
+        </li>
+        <li class="reveal relative pl-14 lg:pl-0">
+          <span class="absolute left-0 top-0 lg:static w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold ring-4 ring-saffron/40 mb-0 lg:mb-3">4</span>
+          <div class="gov-card p-5 lg:h-40"><h3 class="font-heading font-bold text-navy-900">Compared with BNS database</h3><p class="mt-1 text-sm text-slate-600">The description is matched against stored BNS sections.</p></div>
+        </li>
+        <li class="reveal relative pl-14 lg:pl-0">
+          <span class="absolute left-0 top-0 lg:static w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold ring-4 ring-saffron/40 mb-0 lg:mb-3">5</span>
+          <div class="gov-card p-5 lg:h-40"><h3 class="font-heading font-bold text-navy-900">Sections are ranked</h3><p class="mt-1 text-sm text-slate-600">The most relevant sections are shown with a match score.</p></div>
+        </li>
+        <li class="reveal relative pl-14 lg:pl-0">
+          <span class="absolute left-0 top-0 lg:static w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold ring-4 ring-saffron/40 mb-0 lg:mb-3">6</span>
+          <div class="gov-card p-5 lg:h-40"><h3 class="font-heading font-bold text-navy-900">Explanation and FIR draft</h3><p class="mt-1 text-sm text-slate-600">Get a simple explanation, the reason for each match, and an optional draft.</p></div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- ===================== FEATURES ===================== -->
+    <section id="features" class="bg-white border-y border-slate-200">
+      <div class="max-w-7xl mx-auto px-4 py-14">
+        <div class="reveal">
+          <h2 class="section-title text-2xl sm:text-3xl font-bold text-navy-900" data-i18n="features_h">Key features</h2>
+        </div>
+        <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <article class="reveal gov-card p-6">
+            <span class="w-12 h-12 rounded-lg bg-navy-50 text-navy-700 grid place-items-center"><svg class="ico w-6 h-6"><use href="#i-doc"/></svg></span>
+            <h3 class="mt-4 font-heading font-bold text-navy-900">Plain-language input</h3>
+            <p class="mt-1 text-sm text-slate-600">No legal terms needed. Describe the incident the way you would tell it to a person.</p>
+          </article>
+          <article class="reveal gov-card p-6">
+            <span class="w-12 h-12 rounded-lg bg-navy-50 text-navy-700 grid place-items-center"><svg class="ico w-6 h-6"><use href="#i-bolt"/></svg></span>
+            <h3 class="mt-4 font-heading font-bold text-navy-900">Instant ranked sections</h3>
+            <p class="mt-1 text-sm text-slate-600">Applicable BNS sections with title, simple explanation and punishment.</p>
+          </article>
+          <article class="reveal gov-card p-6">
+            <span class="w-12 h-12 rounded-lg bg-navy-50 text-navy-700 grid place-items-center"><svg class="ico w-6 h-6"><use href="#i-eye"/></svg></span>
+            <h3 class="mt-4 font-heading font-bold text-navy-900">Explainable AI</h3>
+            <p class="mt-1 text-sm text-slate-600">Highlights the words that led to each suggestion, so it is not a black box.</p>
+          </article>
+          <article class="reveal gov-card p-6">
+            <span class="w-12 h-12 rounded-lg bg-navy-50 text-navy-700 grid place-items-center"><svg class="ico w-6 h-6"><use href="#i-globe"/></svg></span>
+            <h3 class="mt-4 font-heading font-bold text-navy-900">Multilingual</h3>
+            <p class="mt-1 text-sm text-slate-600">Describe the incident in English, Hindi or Marathi.</p>
+          </article>
+          <article class="reveal gov-card p-6">
+            <span class="w-12 h-12 rounded-lg bg-navy-50 text-navy-700 grid place-items-center"><svg class="ico w-6 h-6"><use href="#i-mic"/></svg></span>
+            <h3 class="mt-4 font-heading font-bold text-navy-900">Voice input</h3>
+            <p class="mt-1 text-sm text-slate-600">Speak the complaint when typing is difficult (supported browsers).</p>
+          </article>
+          <article class="reveal gov-card p-6">
+            <span class="w-12 h-12 rounded-lg bg-navy-50 text-navy-700 grid place-items-center"><svg class="ico w-6 h-6"><use href="#i-print"/></svg></span>
+            <h3 class="mt-4 font-heading font-bold text-navy-900">FIR draft generator</h3>
+            <p class="mt-1 text-sm text-slate-600">Create a draft with the suggested sections filled in, ready to review and print.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== FAQ ===================== -->
+    <section id="faq" class="max-w-4xl mx-auto px-4 py-14">
+      <div class="reveal">
+        <h2 class="section-title text-2xl sm:text-3xl font-bold text-navy-900" data-i18n="faq_h">Frequently asked questions</h2>
+      </div>
+      <div class="mt-8 space-y-3">
+        <details class="faq gov-card p-4 reveal">
+          <summary class="flex items-center justify-between gap-4 font-semibold text-navy-900">Is this legal advice?<svg class="ico chev w-5 h-5"><use href="#i-chev"/></svg></summary>
+          <p class="mt-3 text-sm text-slate-600">No. It is a decision-support tool. A qualified police officer or legal professional must confirm the final sections.</p>
+        </details>
+        <details class="faq gov-card p-4 reveal">
+          <summary class="flex items-center justify-between gap-4 font-semibold text-navy-900">How does it find the sections?<svg class="ico chev w-5 h-5"><use href="#i-chev"/></svg></summary>
+          <p class="mt-3 text-sm text-slate-600">The description and every BNS section are converted into numerical representations (embeddings). Sections whose meaning is closest to the description are ranked highest.</p>
+        </details>
+        <details class="faq gov-card p-4 reveal">
+          <summary class="flex items-center justify-between gap-4 font-semibold text-navy-900">Can it make mistakes?<svg class="ico chev w-5 h-5"><use href="#i-chev"/></svg></summary>
+          <p class="mt-3 text-sm text-slate-600">Yes. Closely related sections (for example, theft and robbery) can be confused, and a prototype may not cover every section. Always review the suggestions.</p>
+        </details>
+        <details class="faq gov-card p-4 reveal">
+          <summary class="flex items-center justify-between gap-4 font-semibold text-navy-900">Is my text stored?<svg class="ico chev w-5 h-5"><use href="#i-chev"/></svg></summary>
+          <p class="mt-3 text-sm text-slate-600">This page only sends your text to the analysis API configured for it. Whether the text is logged depends on how that backend is deployed.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- ===================== DISCLAIMER ===================== -->
+    <section class="max-w-7xl mx-auto px-4 pb-14">
+      <div class="reveal rounded-xl border-l-8 border-saffron bg-white shadow-sm p-5 flex gap-4 items-start">
+        <svg class="ico w-8 h-8 text-saffron-600 mt-0.5"><use href="#i-alert"/></svg>
+        <div>
+          <h2 class="font-heading font-bold text-navy-900 text-lg" data-i18n="disc_h">Disclaimer</h2>
+          <p class="mt-1 text-sm text-slate-700" data-i18n="disclaimer">Decision-support tool only. Not legal advice. Final sections must be confirmed by a qualified police officer or legal professional.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="bg-navy-900 text-navy-100">
+    <div class="flex h-1.5" aria-hidden="true">
+      <div class="flex-1 bg-saffron"></div><div class="flex-1 bg-white"></div><div class="flex-1 bg-indgreen"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-8 text-sm">
+      <div>
+        <p class="font-heading text-white font-bold text-lg" data-i18n="title">AI-Based FIR Analysis System</p>
+        <p class="mt-2" data-i18n="foot_about">An academic project using NLP and Explainable AI to help identify applicable BNS sections at the FIR stage.</p>
+      </div>
+      <div>
+        <p class="font-semibold text-white">Quick links</p>
+        <ul class="mt-2 space-y-1.5">
+          <li><a class="hover:text-saffron" href="#analyze" data-i18n="nav_analyze">Analyze Complaint</a></li>
+          <li><a class="hover:text-saffron" href="#how" data-i18n="nav_how">How It Works</a></li>
+          <li><a class="hover:text-saffron" href="#features" data-i18n="nav_features">Features</a></li>
+          <li><a class="hover:text-saffron" href="#faq" data-i18n="nav_faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-semibold text-white" data-i18n="disc_h">Disclaimer</p>
+        <p class="mt-2" data-i18n="notice">Prototype for academic demonstration. This is not an official Government of India website.</p>
+      </div>
+    </div>
+    <div class="border-t border-white/10">
+      <div class="max-w-7xl mx-auto px-4 py-4 text-xs flex flex-wrap justify-between gap-2">
+        <p>&copy; <span id="year"></span> AI-Based FIR Analysis System. Academic project.</p>
+        <p>Page last updated: <span id="updated"></span></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== FIR DRAFT MODAL ===================== -->
+  <div id="fir-modal" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="fir-title">
+    <div class="modal-backdrop absolute inset-0 bg-navy-900/70" data-close></div>
+    <div class="relative h-full overflow-y-auto grid place-items-center p-4">
+      <div class="modal-panel relative w-full max-w-3xl bg-white rounded-xl shadow-2xl">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+          <h2 id="fir-title" class="font-heading text-xl font-bold text-navy-900" data-i18n="fir_h">FIR draft</h2>
+          <button class="p-1.5 rounded hover:bg-slate-100" data-close aria-label="Close"><svg class="ico w-6 h-6"><use href="#i-close"/></svg></button>
+        </div>
+        <div class="p-5 grid sm:grid-cols-3 gap-3">
+          <label class="text-sm font-medium text-slate-700">Complainant name
+            <input id="f-name" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" type="text" placeholder="Full name"></label>
+          <label class="text-sm font-medium text-slate-700">Address
+            <input id="f-addr" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" type="text" placeholder="Address"></label>
+          <label class="text-sm font-medium text-slate-700">Police station
+            <input id="f-ps" class="mt-1 w-full rounded border border-slate-300 px-3 py-2" type="text" placeholder="Police station"></label>
+        </div>
+        <div class="px-5 pb-2">
+          <pre id="fir-text" class="whitespace-pre-wrap break-words text-sm bg-slate-50 border border-slate-200 rounded-lg p-4 max-h-72 overflow-y-auto font-mono"></pre>
+        </div>
+        <div class="flex flex-wrap gap-3 justify-end px-5 py-4 border-t border-slate-200">
+          <button id="fir-copy" class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-navy-700 text-navy-800 font-semibold hover:bg-navy-50"><svg class="ico w-4 h-4"><use href="#i-copy"/></svg>Copy</button>
+          <button id="fir-download" class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-navy-700 text-navy-800 font-semibold hover:bg-navy-50"><svg class="ico w-4 h-4"><use href="#i-download"/></svg>Download</button>
+          <button id="fir-print" class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-navy-800 text-white font-semibold hover:bg-navy-700"><svg class="ico w-4 h-4"><use href="#i-print"/></svg>Print</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-navy-900 text-white text-sm px-4 py-2 rounded-md shadow-lg" role="status"></div>
+
+  <button id="to-top" class="hidden fixed bottom-6 right-6 z-40 w-11 h-11 rounded-full bg-saffron text-navy-900 shadow-lg grid place-items-center hover:bg-saffron-600 hover:text-white transition" aria-label="Back to top">
+    <svg class="ico w-5 h-5"><use href="#i-up"/></svg>
+  </button>
+
+  <noscript><p class="p-4 text-center bg-amber-100 text-amber-900">JavaScript is required to analyse a complaint.</p></noscript>
+
+  <!-- ===================== APPLICATION SCRIPT ===================== -->
+  <script>
+  (() => {
+    'use strict';
+
+    /* ---------------------------------------------------------------
+       CONFIG: change these to connect your backend
+       ---------------------------------------------------------------
+       Expected response from POST API_URL  (JSON):
+       { "results": [ { "section": "...", "title": "...", "explanation": "...",
+                        "punishment": "...", "score": 0.61,
+                        "key_words": ["word1", "word2"] } ] }
+    ---------------------------------------------------------------- */
+    const CONFIG = {
+      API_URL: '{% url "analyze" %}',
+      CSRF_TOKEN: '{{ csrf_token }}',
+      DEMO_FALLBACK: true,       // show sample results if the API is unreachable
+      HIGH: 0.55,                // score thresholds for the match label (tune on your test set)
+      MEDIUM: 0.40
+    };
+
+    /* ---------------- Translations ---------------- */
+    const I18N = {
+      en: {
+        skip: 'Skip to main content',
+        notice: 'Prototype for academic demonstration. This is not an official Government of India website.',
+        title: 'AI-Based FIR Analysis System',
+        subtitle: 'Automatic identification of applicable BNS sections',
+        nav_home: 'Home', nav_analyze: 'Analyze Complaint', nav_how: 'How It Works', nav_features: 'Features', nav_faq: 'FAQ',
+        cta: 'Start Analysis', latest: 'Notice',
+        marquee: 'Decision-support tool only. Suggested sections must be verified by a qualified police officer or legal professional before registering an FIR.',
+        hero_tag: 'Decision-support for FIR registration',
+        hero_h: 'Know the applicable BNS sections, instantly.',
+        hero_p: 'Describe the incident in simple language. The system suggests relevant sections with a plain-language explanation and the reason behind each suggestion.',
+        st_lang: 'Input languages', st_steps: 'Processing steps', st_rank: 'Ranked suggestions', st_xai: 'Reason for each match',
+        analyze_h: 'Describe the incident', analyze_label: 'Incident description (type or speak)',
+        placeholder: 'Example: A person broke into my house at night and stole jewellery.',
+        btn_analyze: 'Analyze', btn_mic: 'Speak', btn_clear: 'Clear', examples: 'Try an example',
+        tips_h: 'Tips for a good description', tip1: 'Say what happened, in order.',
+        tip2: 'Mention the place and time if you know them.',
+        tip3: 'Mention any property taken, damaged, or any injury caused.',
+        tip4: 'Mention any threat, force, or false promise used.',
+        aside_h: 'Always verify', aside_p: 'Suggestions are a starting point. The officer in charge decides the final sections.',
+        band_h: 'From a plain-language story to the right section of law',
+        band_p: 'With BNS replacing the IPC, officers and citizens are still learning the new section numbers. This tool helps bridge that gap at the very first step of a criminal case.',
+        how_h: 'How it works', features_h: 'Key features', faq_h: 'Frequently asked questions',
+        disc_h: 'Disclaimer',
+        disclaimer: 'Decision-support tool only. Not legal advice. Final sections must be confirmed by a qualified police officer or legal professional.',
+        foot_about: 'An academic project using NLP and Explainable AI to help identify applicable BNS sections at the FIR stage.',
+        demo_banner: 'Demo mode: backend not connected. Showing sample results with placeholder section numbers.',
+        results_h: 'Suggested BNS sections', your_text: 'Your description, with key words highlighted',
+        sec: 'BNS Section', punishment: 'Punishment', why: 'Why suggested', match: 'Match',
+        m_high: 'High', m_med: 'Medium', m_low: 'Low', copy: 'Copy', copied: 'Copied to clipboard',
+        gen_fir: 'Generate FIR draft', fir_h: 'FIR draft',
+        empty: 'Please describe the incident first.',
+        no_match: 'No section crossed the confidence threshold. Add more details and try again.',
+        error: 'Could not reach the analysis service. Please try again.',
+        analyzing: 'Analyzing…', listening: 'Listening… speak now', mic_unsupported: 'Voice input is not supported in this browser.',
+        no_expl: 'Explanation not provided.', no_pun: 'Refer to the official BNS text.'
+      },
+      hi: {
+        skip: 'मुख्य सामग्री पर जाएँ',
+        notice: 'यह शैक्षणिक प्रदर्शन के लिए प्रोटोटाइप है। यह भारत सरकार की आधिकारिक वेबसाइट नहीं है।',
+        title: 'एआई आधारित एफआईआर विश्लेषण प्रणाली',
+        subtitle: 'लागू भारतीय न्याय संहिता (BNS) धाराओं की स्वचालित पहचान',
+        nav_home: 'मुख्य पृष्ठ', nav_analyze: 'शिकायत विश्लेषण', nav_how: 'यह कैसे काम करता है', nav_features: 'विशेषताएँ', nav_faq: 'सामान्य प्रश्न',
+        cta: 'विश्लेषण शुरू करें', latest: 'सूचना',
+        marquee: 'यह केवल निर्णय-सहायक उपकरण है। एफआईआर दर्ज करने से पहले सुझाई गई धाराओं की पुष्टि योग्य पुलिस अधिकारी या विधि विशेषज्ञ से करें।',
+        hero_tag: 'एफआईआर पंजीकरण के लिए निर्णय-सहायता',
+        hero_h: 'लागू BNS धाराएँ तुरंत जानें।',
+        hero_p: 'घटना को सरल भाषा में लिखें। प्रणाली संबंधित धाराओं को सरल व्याख्या और सुझाव के कारण सहित दिखाती है।',
+        st_lang: 'इनपुट भाषाएँ', st_steps: 'प्रसंस्करण चरण', st_rank: 'क्रमबद्ध सुझाव', st_xai: 'हर मिलान का कारण',
+        analyze_h: 'घटना का विवरण लिखें', analyze_label: 'घटना का विवरण (लिखें या बोलें)',
+        placeholder: 'उदाहरण: रात में किसी ने मेरे घर में घुसकर गहने चुरा लिए।',
+        btn_analyze: 'विश्लेषण करें', btn_mic: 'बोलकर लिखें', btn_clear: 'साफ़ करें', examples: 'उदाहरण आज़माएँ',
+        tips_h: 'अच्छा विवरण लिखने के सुझाव', tip1: 'जो हुआ, उसे क्रम से लिखें।',
+        tip2: 'स्थान और समय पता हो तो बताएँ।',
+        tip3: 'ली गई या क्षतिग्रस्त संपत्ति और लगी चोट का उल्लेख करें।',
+        tip4: 'किसी धमकी, बल प्रयोग या झूठे वादे का उल्लेख करें।',
+        aside_h: 'हमेशा जाँच करें', aside_p: 'सुझाव केवल शुरुआत हैं। अंतिम धाराएँ प्रभारी अधिकारी तय करते हैं।',
+        band_h: 'सरल भाषा की कहानी से कानून की सही धारा तक',
+        band_p: 'IPC की जगह BNS आने के बाद अधिकारी और नागरिक अब भी नई धाराएँ सीख रहे हैं। यह उपकरण आपराधिक मामले के पहले चरण में इस अंतर को कम करने में मदद करता है।',
+        how_h: 'यह कैसे काम करता है', features_h: 'प्रमुख विशेषताएँ', faq_h: 'अक्सर पूछे जाने वाले प्रश्न',
+        disc_h: 'अस्वीकरण',
+        disclaimer: 'यह केवल निर्णय-सहायक उपकरण है, कानूनी सलाह नहीं। अंतिम धाराओं की पुष्टि योग्य पुलिस अधिकारी या विधि विशेषज्ञ द्वारा की जानी चाहिए।',
+        foot_about: 'एनएलपी और व्याख्यात्मक एआई का उपयोग करने वाली एक शैक्षणिक परियोजना, जो एफआईआर चरण में लागू BNS धाराओं की पहचान में सहायता करती है।',
+        demo_banner: 'डेमो मोड: बैकएंड जुड़ा नहीं है। नमूना परिणाम दिख रहे हैं, धारा संख्याएँ प्लेसहोल्डर हैं।',
+        results_h: 'सुझाई गई BNS धाराएँ', your_text: 'आपका विवरण, मुख्य शब्द रेखांकित',
+        sec: 'BNS धारा', punishment: 'दंड', why: 'सुझाव का कारण', match: 'मिलान',
+        m_high: 'उच्च', m_med: 'मध्यम', m_low: 'कम', copy: 'कॉपी करें', copied: 'क्लिपबोर्ड पर कॉपी हो गया',
+        gen_fir: 'एफआईआर मसौदा बनाएँ', fir_h: 'एफआईआर मसौदा',
+        empty: 'कृपया पहले घटना का विवरण लिखें।',
+        no_match: 'कोई धारा विश्वसनीयता सीमा पार नहीं कर सकी। अधिक विवरण जोड़कर पुनः प्रयास करें।',
+        error: 'विश्लेषण सेवा से संपर्क नहीं हो सका। कृपया पुनः प्रयास करें।',
+        analyzing: 'विश्लेषण हो रहा है…', listening: 'सुन रहा है… अब बोलें', mic_unsupported: 'इस ब्राउज़र में वॉइस इनपुट समर्थित नहीं है।',
+        no_expl: 'व्याख्या उपलब्ध नहीं है।', no_pun: 'आधिकारिक BNS पाठ देखें।'
+      },
+      mr: {
+        skip: 'मुख्य मजकुराकडे जा',
+        notice: 'हा शैक्षणिक प्रदर्शनासाठीचा प्रोटोटाइप आहे. ही भारत सरकारची अधिकृत वेबसाइट नाही.',
+        title: 'एआय आधारित एफआयआर विश्लेषण प्रणाली',
+        subtitle: 'लागू भारतीय न्याय संहिता (BNS) कलमांची स्वयंचलित ओळख',
+        nav_home: 'मुख्यपृष्ठ', nav_analyze: 'तक्रार विश्लेषण', nav_how: 'हे कसे कार्य करते', nav_features: 'वैशिष्ट्ये', nav_faq: 'सामान्य प्रश्न',
+        cta: 'विश्लेषण सुरू करा', latest: 'सूचना',
+        marquee: 'हे केवळ निर्णय-सहाय्यक साधन आहे. एफआयआर नोंदवण्यापूर्वी सुचवलेल्या कलमांची खात्री पात्र पोलीस अधिकारी किंवा विधी तज्ज्ञाकडून करा.',
+        hero_tag: 'एफआयआर नोंदणीसाठी निर्णय-सहाय्य',
+        hero_h: 'लागू BNS कलमे त्वरित जाणून घ्या.',
+        hero_p: 'घटना सोप्या भाषेत लिहा. प्रणाली संबंधित कलमे, त्यांचा सोपा अर्थ आणि सुचवण्यामागील कारणासह दाखवते.',
+        st_lang: 'इनपुट भाषा', st_steps: 'प्रक्रिया टप्पे', st_rank: 'क्रमवार सूचना', st_xai: 'प्रत्येक जुळणीचे कारण',
+        analyze_h: 'घटनेचे वर्णन लिहा', analyze_label: 'घटनेचे वर्णन (लिहा किंवा बोला)',
+        placeholder: 'उदाहरण: रात्री कोणीतरी माझ्या घरात घुसले आणि दागिने चोरून नेले.',
+        btn_analyze: 'विश्लेषण करा', btn_mic: 'बोलून लिहा', btn_clear: 'साफ करा', examples: 'उदाहरण वापरून पहा',
+        tips_h: 'चांगले वर्णन लिहिण्यासाठी टिप्स', tip1: 'जे घडले ते क्रमाने लिहा.',
+        tip2: 'ठिकाण आणि वेळ माहीत असल्यास सांगा.',
+        tip3: 'चोरीला गेलेली किंवा खराब झालेली मालमत्ता आणि झालेली जखम नमूद करा.',
+        tip4: 'कोणतीही धमकी, बळाचा वापर किंवा खोटे आश्वासन नमूद करा.',
+        aside_h: 'नेहमी तपासा', aside_p: 'सूचना ही फक्त सुरुवात आहे. अंतिम कलमे प्रभारी अधिकारी ठरवतात.',
+        band_h: 'साध्या भाषेतील कथेपासून कायद्याच्या योग्य कलमापर्यंत',
+        band_p: 'IPC ऐवजी BNS आल्यानंतर अधिकारी आणि नागरिक अजूनही नवीन कलम क्रमांक शिकत आहेत. फौजदारी प्रकरणाच्या पहिल्याच टप्प्यावर हे साधन ही दरी कमी करण्यास मदत करते.',
+        how_h: 'हे कसे कार्य करते', features_h: 'प्रमुख वैशिष्ट्ये', faq_h: 'वारंवार विचारले जाणारे प्रश्न',
+        disc_h: 'अस्वीकरण',
+        disclaimer: 'हे केवळ निर्णय-सहाय्यक साधन आहे, कायदेशीर सल्ला नाही. अंतिम कलमांची खात्री पात्र पोलीस अधिकारी किंवा विधी तज्ज्ञाने करावी.',
+        foot_about: 'एनएलपी आणि स्पष्टीकरणक्षम एआय वापरणारा शैक्षणिक प्रकल्प, जो एफआयआर टप्प्यावर लागू BNS कलमे ओळखण्यास मदत करतो.',
+        demo_banner: 'डेमो मोड: बॅकएंड जोडलेला नाही. नमुना निकाल दाखवले आहेत, कलम क्रमांक प्लेसहोल्डर आहेत.',
+        results_h: 'सुचवलेली BNS कलमे', your_text: 'तुमचे वर्णन, महत्त्वाचे शब्द अधोरेखित',
+        sec: 'BNS कलम', punishment: 'शिक्षा', why: 'का सुचवले', match: 'जुळणी',
+        m_high: 'उच्च', m_med: 'मध्यम', m_low: 'कमी', copy: 'कॉपी करा', copied: 'क्लिपबोर्डवर कॉपी झाले',
+        gen_fir: 'एफआयआर मसुदा तयार करा', fir_h: 'एफआयआर मसुदा',
+        empty: 'कृपया आधी घटनेचे वर्णन लिहा.',
+        no_match: 'कोणतेही कलम विश्वासार्हता मर्यादा ओलांडू शकले नाही. अधिक तपशील जोडून पुन्हा प्रयत्न करा.',
+        error: 'विश्लेषण सेवेशी संपर्क होऊ शकला नाही. कृपया पुन्हा प्रयत्न करा.',
+        analyzing: 'विश्लेषण सुरू आहे…', listening: 'ऐकत आहे… आता बोला', mic_unsupported: 'या ब्राउझरमध्ये व्हॉइस इनपुट समर्थित नाही.',
+        no_expl: 'स्पष्टीकरण उपलब्ध नाही.', no_pun: 'अधिकृत BNS मजकूर पहा.'
+      }
+    };
+    const LOCALES = { en: 'en-IN', hi: 'hi-IN', mr: 'mr-IN' };
+
+    /* ---------------- Helpers ---------------- */
+    const $  = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const normalize = w => String(w).toLowerCase().replace(/^[\p{P}\p{S}]+|[\p{P}\p{S}]+$/gu, '');
+
+    let lang = 'en';
+    try { lang = localStorage.getItem('fir-lang') || 'en'; } catch (e) { /* storage blocked */ }
+    if (!I18N[lang]) lang = 'en';
+    const t = k => (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k;
+
+    let lastResults = [], lastText = '', lastDemo = false;
+
+    const el = {
+      complaint: $('#complaint'), count: $('#char-count'), analyze: $('#analyze-btn'),
+      spin: $('#analyze-spin'), ico: $('#analyze-ico'), aLabel: $('#analyze-label'),
+      mic: $('#mic-btn'), micStatus: $('#mic-status'), clear: $('#clear-btn'),
+      err: $('#form-error'), wrap: $('#results-wrap'), results: $('#results'), demo: $('#demo-banner'),
+      toast: $('#toast'), modal: $('#fir-modal'), firText: $('#fir-text')
+    };
+
+    function toast(msg) {
+      el.toast.textContent = msg;
+      el.toast.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => el.toast.classList.remove('show'), 2200);
+    }
+
+    async function copyText(text) {
+      try { await navigator.clipboard.writeText(text); }
+      catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (_) { /* ignore */ }
+        ta.remove();
+      }
+      toast(t('copied'));
+    }
+
+    /* ---------------- i18n ---------------- */
+    function applyI18n() {
+      $$('[data-i18n]').forEach(n => { n.textContent = t(n.dataset.i18n); });
+      $$('[data-i18n-ph]').forEach(n => { n.placeholder = t(n.dataset.i18nPh); });
+      document.documentElement.lang = lang;
+      $('#lang-select').value = lang;
+      $('#today').textContent = new Date().toLocaleDateString(LOCALES[lang], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      if (lastResults.length || lastText) renderResults(lastResults, lastText, lastDemo, true);
+    }
+    $('#lang-select').addEventListener('change', e => {
+      lang = e.target.value;
+      try { localStorage.setItem('fir-lang', lang); } catch (_) { /* ignore */ }
+      applyI18n();
+    });
+
+    /* ---------------- Accessibility controls ---------------- */
+    let fs = 16;
+    const setFs = v => { fs = Math.min(20, Math.max(13, v)); document.documentElement.style.fontSize = fs + 'px'; };
+    $('#fs-up').addEventListener('click', () => setFs(fs + 1));
+    $('#fs-down').addEventListener('click', () => setFs(fs - 1));
+    $('#fs-reset').addEventListener('click', () => setFs(16));
+    $('#contrast-toggle').addEventListener('click', e => {
+      const on = document.documentElement.classList.toggle('hc');
+      e.currentTarget.setAttribute('aria-pressed', String(on));
+    });
+
+    /* ---------------- Mobile menu ---------------- */
+    const menuBtn = $('#menu-btn'), menu = $('#mobile-menu');
+    menuBtn.addEventListener('click', () => {
+      const open = menu.classList.toggle('hidden') === false;
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    $$('#mobile-menu a').forEach(a => a.addEventListener('click', () => { menu.classList.add('hidden'); menuBtn.setAttribute('aria-expanded', 'false'); }));
+
+    /* ---------------- Reveal on scroll + counters ---------------- */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    $$('.reveal').forEach(n => io.observe(n));
+
+    $$('[data-count]').forEach(n => {
+      const target = Number(n.dataset.count);
+      let cur = 0;
+      const tick = () => { cur += 1; n.textContent = cur; if (cur < target) setTimeout(tick, 220); };
+      setTimeout(tick, 500);
+    });
+
+    const toTop = $('#to-top');
+    window.addEventListener('scroll', () => toTop.classList.toggle('hidden', window.scrollY < 500), { passive: true });
+    toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    /* ---------------- Input handling ---------------- */
+    el.complaint.addEventListener('input', () => { el.count.textContent = el.complaint.value.length; hideError(); });
+    el.clear.addEventListener('click', () => {
+      el.complaint.value = ''; el.count.textContent = '0'; hideError();
+      el.wrap.classList.add('hidden'); el.results.innerHTML = ''; lastResults = []; lastText = '';
+      el.complaint.focus();
+    });
+    $$('#example-chips .chip').forEach(c => c.addEventListener('click', () => {
+      el.complaint.value = c.dataset.ex; el.count.textContent = el.complaint.value.length; hideError(); el.complaint.focus();
+    }));
+    function showError(msg) { el.err.textContent = msg; el.err.classList.remove('hidden'); }
+    function hideError() { el.err.classList.add('hidden'); }
+
+    /* ---------------- Voice input (Web Speech API) ---------------- */
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null, listening = false;
+    if (!SR) { el.mic.disabled = true; el.mic.classList.add('opacity-50', 'cursor-not-allowed'); }
+    el.mic.addEventListener('click', () => {
+      if (!SR) { toast(t('mic_unsupported')); return; }
+      if (listening) { rec.stop(); return; }
+      rec = new SR();
+      rec.lang = LOCALES[lang];
+      rec.interimResults = true;
+      rec.continuous = false;
+      const base = el.complaint.value ? el.complaint.value.trim() + ' ' : '';
+      rec.onstart = () => { listening = true; el.mic.classList.add('mic-active'); el.micStatus.textContent = t('listening'); };
+      rec.onresult = ev => {
+        let txt = '';
+        for (let i = 0; i < ev.results.length; i++) txt += ev.results[i][0].transcript;
+        el.complaint.value = (base + txt).slice(0, 2000);
+        el.count.textContent = el.complaint.value.length;
+      };
+      rec.onend = () => { listening = false; el.mic.classList.remove('mic-active'); el.micStatus.textContent = ''; };
+      rec.onerror = () => { listening = false; el.mic.classList.remove('mic-active'); el.micStatus.textContent = ''; };
+      rec.start();
+    });
+
+    /* ---------------- Analyze ---------------- */
+    function getCookie(name) {
+      const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return m ? decodeURIComponent(m.pop()) : '';
+    }
+
+    function setLoading(on) {
+      el.analyze.disabled = on;
+      el.spin.classList.toggle('hidden', !on);
+      el.ico.classList.toggle('hidden', on);
+      el.aLabel.textContent = on ? t('analyzing') : t('btn_analyze');
+    }
+
+    function showSkeleton() {
+      el.wrap.classList.remove('hidden');
+      el.demo.classList.add('hidden');
+      el.results.innerHTML = '<div class="space-y-4">' +
+        '<div class="skeleton h-24"></div><div class="skeleton h-40"></div><div class="skeleton h-40"></div></div>';
+    }
+
+    async function analyze() {
+      const text = el.complaint.value.trim();
+      if (!text) { showError(t('empty')); el.complaint.focus(); return; }
+      hideError(); setLoading(true); showSkeleton();
+      el.wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      let data, demo = false;
+      try {
+        const res = await fetch(CONFIG.API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CONFIG.CSRF_TOKEN || getCookie('csrftoken') },
+          body: JSON.stringify({ complaint: text, language: lang })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        data = await res.json();
+      } catch (err) {
+        if (!CONFIG.DEMO_FALLBACK) {
+          setLoading(false); el.wrap.classList.add('hidden'); showError(t('error')); return;
+        }
+        demo = true; data = await demoAnalyze(text);
+      }
+      setLoading(false);
+      lastResults = Array.isArray(data.results) ? data.results : [];
+      lastText = text; lastDemo = demo;
+      renderResults(lastResults, text, demo);
+    }
+    el.analyze.addEventListener('click', analyze);
+    el.complaint.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') analyze(); });
+
+    /* ---------------- Demo data (used only when the backend is unreachable) ---------------- */
+    const DEMO_RULES = [
+      { title: 'Theft', words: ['stole', 'stolen', 'theft', 'jewel', 'snatch', 'pickpocket', 'चोर', 'चुरा', 'दागिने', 'गहने'],
+        explanation: 'Dishonestly taking movable property out of someone\'s possession without their consent.' },
+      { title: 'House-breaking by night', words: ['broke', 'house', 'night', 'burglar', 'घुस', 'घर', 'रात्री', 'रात'],
+        explanation: 'Entering or breaking into a house during the night to commit an offence.' },
+      { title: 'Voluntarily causing hurt', words: ['beat', 'hit', 'slap', 'attack', 'stick', 'मार', 'पीट', 'मारहाण'],
+        explanation: 'Intentionally causing bodily pain or injury to another person.' },
+      { title: 'Criminal intimidation', words: ['threat', 'kill', 'धमक'],
+        explanation: 'Threatening a person with injury to make them fear harm.' },
+      { title: 'Cheating', words: ['cheat', 'fraud', 'fake', 'scam', 'online', 'rupees', 'फसव', 'धोखा', 'धोखाधड़ी'],
+        explanation: 'Deceiving a person to dishonestly make them hand over money or property.' }
+    ];
+    const hit = (token, w) => /^[a-z]+$/.test(w) ? token.startsWith(w) : token.includes(w);
+
+    async function demoAnalyze(text) {
+      await sleep(900);
+      const tokens = text.split(/\s+/).map(normalize).filter(Boolean);
+      const results = [];
+      DEMO_RULES.forEach(rule => {
+        const found = [];
+        tokens.forEach((tok, i) => { if (rule.words.some(w => hit(tok, w))) found.push(text.split(/\s+/)[i]); });
+        if (found.length) {
+          results.push({
+            section: 'XXX', title: rule.title, explanation: rule.explanation,
+            punishment: 'Placeholder. Refer to the official BNS text.',
+            score: Math.min(0.92, 0.34 + 0.14 * found.length),
+            key_words: Array.from(new Set(found))
+          });
+        }
+      });
+      results.sort((a, b) => b.score - a.score);
+      return { results: results.slice(0, 5) };
+    }
+
+    /* ---------------- Rendering ---------------- */
+    function highlight(text, words) {
+      const set = new Set(words.map(normalize).filter(Boolean));
+      return text.split(/(\s+)/).map(tok => {
+        if (!tok || /^\s+$/.test(tok)) return esc(tok);
+        return set.has(normalize(tok)) ? '<mark class="kw">' + esc(tok) + '</mark>' : esc(tok);
+      }).join('');
+    }
+    const level = s => s >= CONFIG.HIGH ? 'high' : s >= CONFIG.MEDIUM ? 'med' : 'low';
+    const BAR = { high: 'bg-emerald-600', med: 'bg-amber-500', low: 'bg-slate-400' };
+    const BADGE = { high: 'bg-emerald-50 text-emerald-800 border-emerald-300', med: 'bg-amber-50 text-amber-900 border-amber-300', low: 'bg-slate-100 text-slate-700 border-slate-300' };
+
+    function renderResults(results, text, demo, silent) {
+      el.wrap.classList.remove('hidden');
+      el.demo.classList.toggle('hidden', !demo);
+
+      if (!results.length) {
+        el.results.innerHTML = '<div class="gov-card p-6 text-slate-700 flex items-start gap-3"><svg class="ico w-6 h-6 text-saffron-600"><use href="#i-alert"/></svg><p>' + esc(t('no_match')) + '</p></div>';
+        return;
+      }
+      const allWords = results.flatMap(r => r.key_words || []);
+
+      const cards = results.map((r, i) => {
+        const score = Math.max(0, Math.min(1, Number(r.score) || 0));
+        const pct = Math.round(score * 100), lv = level(score);
+        const chips = (r.key_words || []).map(w => '<span class="px-2 py-0.5 rounded-full bg-saffron/20 text-navy-900 text-xs font-semibold">' + esc(w) + '</span>').join(' ');
+        return '' +
+        '<article class="result-card gov-card card-accent p-5 sm:p-6" style="animation-delay:' + (i * 90) + 'ms">' +
+          '<div class="flex flex-wrap items-start justify-between gap-3">' +
+            '<div class="flex items-start gap-4">' +
+              '<span class="shrink-0 w-11 h-11 rounded-full bg-navy-800 text-white grid place-items-center font-bold">' + (i + 1) + '</span>' +
+              '<div><p class="text-xs font-semibold uppercase tracking-wide text-saffron-600">' + esc(t('sec')) + ' ' + esc(r.section ?? '') + '</p>' +
+              '<h3 class="font-heading text-xl font-bold text-navy-900">' + esc(r.title) + '</h3></div>' +
+            '</div>' +
+            '<span class="px-3 py-1 rounded-full border text-xs font-semibold ' + BADGE[lv] + '">' + esc(t('match')) + ': ' + esc(t('m_' + lv)) + ' (' + pct + '%)</span>' +
+          '</div>' +
+          '<div class="mt-4 score-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '" aria-label="' + esc(t('match')) + '">' +
+            '<div class="score-fill ' + BAR[lv] + '" data-w="' + pct + '"></div></div>' +
+          '<p class="mt-4 text-sm text-slate-700">' + esc(r.explanation || t('no_expl')) + '</p>' +
+          '<div class="mt-4 grid sm:grid-cols-2 gap-4 text-sm">' +
+            '<div class="rounded-lg bg-navy-50 p-3"><p class="font-semibold text-navy-800">' + esc(t('punishment')) + '</p><p class="mt-1 text-slate-700">' + esc(r.punishment || t('no_pun')) + '</p></div>' +
+            '<div class="rounded-lg bg-slate-50 border border-slate-200 p-3"><p class="font-semibold text-navy-800">' + esc(t('why')) + '</p><div class="mt-1 flex flex-wrap gap-1.5">' + (chips || '<span class="text-slate-500">-</span>') + '</div></div>' +
+          '</div>' +
+          '<div class="mt-4 flex justify-end">' +
+            '<button class="copy-btn inline-flex items-center gap-1.5 text-sm font-semibold text-navy-700 hover:text-navy-900" data-i="' + i + '"><svg class="ico w-4 h-4"><use href="#i-copy"/></svg>' + esc(t('copy')) + '</button>' +
+          '</div>' +
+        '</article>';
+      }).join('');
+
+      el.results.innerHTML =
+        '<div class="flex flex-wrap items-center justify-between gap-3 mb-5">' +
+          '<h2 class="section-title text-2xl font-bold text-navy-900">' + esc(t('results_h')) + '</h2>' +
+          '<button id="fir-open" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-saffron text-navy-900 font-semibold hover:bg-saffron-600 hover:text-white transition shadow">' +
+            '<svg class="ico w-5 h-5"><use href="#i-doc"/></svg>' + esc(t('gen_fir')) + '</button>' +
+        '</div>' +
+        '<div class="gov-card p-4 mb-6 bg-white"><p class="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">' + esc(t('your_text')) + '</p>' +
+          '<p class="leading-8">' + highlight(text, allWords) + '</p></div>' +
+        '<div class="space-y-5">' + cards + '</div>';
+
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        $$('.score-fill', el.results).forEach(b => { b.style.width = b.dataset.w + '%'; });
+      }));
+      $$('.copy-btn', el.results).forEach(b => b.addEventListener('click', () => {
+        const r = results[Number(b.dataset.i)];
+        copyText(t('sec') + ' ' + (r.section ?? '') + ' - ' + r.title + '\n' + (r.explanation || '') + '\n' + t('punishment') + ': ' + (r.punishment || ''));
+      }));
+      $('#fir-open').addEventListener('click', openModal);
+    }
+
+    /* ---------------- FIR draft modal ---------------- */
+    let opener = null;
+    function buildDraft() {
+      const line = (v, ph) => (v && v.trim()) ? v.trim() : ph;
+      const secs = lastResults.map((r, i) => (i + 1) + '. BNS Section ' + (r.section ?? '') + ' - ' + r.title).join('\n') || '(none)';
+      return [
+        'FIRST INFORMATION REPORT (DRAFT)',
+        'Prepared with AI assistance. To be reviewed and confirmed by the officer in charge.',
+        '',
+        'Date: ' + new Date().toLocaleDateString(LOCALES[lang], { day: '2-digit', month: 'long', year: 'numeric' }),
+        'Police station: ' + line($('#f-ps').value, '____________________'),
+        'Complainant: ' + line($('#f-name').value, '____________________'),
+        'Address: ' + line($('#f-addr').value, '____________________'),
+        '',
+        'Details of the incident (as stated by the complainant):',
+        lastText,
+        '',
+        'Suggested BNS sections (to be verified):',
+        secs,
+        '',
+        'Note: These sections are suggestions from an automated tool and are not a legal determination.'
+      ].join('\n');
+    }
+    const refreshDraft = () => { el.firText.textContent = buildDraft(); };
+    function openModal() {
+      opener = document.activeElement; refreshDraft();
+      el.modal.classList.remove('hidden'); document.body.style.overflow = 'hidden';
+      $('#f-name').focus();
+    }
+    function closeModal() {
+      el.modal.classList.add('hidden'); document.body.style.overflow = '';
+      if (opener) opener.focus();
+    }
+    $$('[data-close]', el.modal).forEach(n => n.addEventListener('click', closeModal));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !el.modal.classList.contains('hidden')) closeModal(); });
+    ['#f-name', '#f-addr', '#f-ps'].forEach(s => $(s).addEventListener('input', refreshDraft));
+    $('#fir-copy').addEventListener('click', () => copyText(buildDraft()));
+    $('#fir-download').addEventListener('click', () => {
+      const blob = new Blob([buildDraft()], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'FIR-draft.txt';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+    $('#fir-print').addEventListener('click', () => {
+      const w = window.open('', '_blank');
+      if (!w) { toast('Allow pop-ups to print'); return; }
+      w.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>FIR draft</title>' +
+        '<style>body{font-family:Georgia,serif;padding:32px;line-height:1.6}pre{white-space:pre-wrap;font-family:inherit}</style></head><body><pre>' +
+        esc(buildDraft()) + '</pre></body></html>');
+      w.document.close(); w.focus(); w.print();
+    });
+
+    /* ---------------- Footer dates + init ---------------- */
+    $('#year').textContent = new Date().getFullYear();
+    $('#updated').textContent = new Date(document.lastModified).toLocaleDateString(LOCALES[lang], { day: '2-digit', month: 'short', year: 'numeric' });
+    applyI18n();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+/* ==========================================================================
+   AI-Based FIR Analysis System: custom styles
+   Works together with Tailwind (loaded via CDN in index.html).
+   ========================================================================== */
+
+:root {
+  --navy-900: #0b2040;
+  --navy-800: #102c58;
+  --navy-700: #173b75;
+  --saffron: #ff9933;
+  --india-green: #138808;
+  --ink: #1e293b;
+}
+
+html { scroll-padding-top: 5rem; }
+
+body {
+  font-family: "Noto Sans", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-heading {
+  font-family: "Noto Serif", "Noto Sans Devanagari", Georgia, serif;
+}
+
+/* ---------- Icons (SVG sprite) ---------- */
+.ico {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+/* ---------- Focus visibility (keyboard accessibility) ---------- */
+:focus-visible {
+  outline: 3px solid var(--saffron);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Skip link ---------- */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  color: var(--navy-900);
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+
+/* ---------- Hero background ---------- */
+.hero-bg {
+  background-color: var(--navy-900);
+  background-image:
+    radial-gradient(circle at 85% 20%, rgba(255, 153, 51, 0.18), transparent 45%),
+    radial-gradient(circle at 10% 90%, rgba(19, 136, 8, 0.16), transparent 40%),
+    linear-gradient(135deg, var(--navy-900) 0%, var(--navy-700) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 75%);
+  pointer-events: none;
+}
+
+/* ---------- Notice marquee ---------- */
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee 38s linear infinite;
+}
+.marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ---------- Floating illustration ---------- */
+.float-slow { animation: floaty 6s ease-in-out infinite; }
+.float-delay { animation: floaty 7s ease-in-out infinite 1.2s; }
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+
+/* Gentle swing for the scales pans */
+.scales-swing { transform-origin: 100px 46px; animation: swing 7s ease-in-out infinite; }
+@keyframes swing {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50%      { transform: rotate(2.5deg); }
+}
+
+/* ---------- Reveal on scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---------- Cards ---------- */
+.gov-card {
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(15, 32, 64, 0.05);
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+}
+.gov-card:hover {
+  box-shadow: 0 10px 28px rgba(15, 32, 64, 0.12);
+  border-color: #b9c8e0;
+}
+.card-accent { border-top: 4px solid var(--saffron); }
+
+/* ---------- Section headings with tricolor underline ---------- */
+.section-title::after {
+  content: "";
+  display: block;
+  width: 84px;
+  height: 4px;
+  margin-top: 0.75rem;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--saffron) 0 33%, #fff 33% 66%, var(--india-green) 66% 100%);
+  box-shadow: 0 0 0 1px #d5dbe6 inset;
+}
+.section-title.center::after { margin-left: auto; margin-right: auto; }
+
+/* ---------- Textarea ---------- */
+.complaint-box {
+  min-height: 11rem;
+  resize: vertical;
+  line-height: 1.7;
+}
+.complaint-box:focus {
+  border-color: var(--navy-700);
+  box-shadow: 0 0 0 3px rgba(23, 59, 117, 0.18);
+  outline: none;
+}
+
+/* ---------- Mic button recording state ---------- */
+.mic-active {
+  background: #dc2626 !important;
+  color: #fff !important;
+  animation: pulse-ring 1.4s infinite;
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.55); }
+  70%  { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+/* ---------- Keyword highlight ---------- */
+mark.kw {
+  background: linear-gradient(transparent 38%, rgba(255, 153, 51, 0.55) 38%);
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+/* ---------- Score bar ---------- */
+.score-track { background: #e5eaf2; height: 0.6rem; border-radius: 999px; overflow: hidden; }
+.score-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Result card entrance ---------- */
+.result-card { animation: rise 0.5s ease both; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Loading skeleton ---------- */
+.skeleton {
+  background: linear-gradient(90deg, #e8edf5 25%, #f4f7fb 37%, #e8edf5 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 0.5rem;
+}
+@keyframes shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* ---------- Spinner ---------- */
+.spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- Timeline (How it works) ---------- */
+.timeline { position: relative; }
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 1.4rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 3px;
+  background: linear-gradient(var(--saffron), #fff, var(--india-green));
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px #d5dbe6;
+}
+@media (min-width: 1024px) {
+  .timeline::before { display: none; }
+}
+
+/* ---------- FAQ (details/summary) ---------- */
+details.faq summary { list-style: none; cursor: pointer; }
+details.faq summary::-webkit-details-marker { display: none; }
+details.faq[open] summary .chev { transform: rotate(180deg); }
+details.faq .chev { transition: transform 0.25s ease; }
+details.faq[open] { border-color: var(--navy-700); }
+
+/* ---------- Modal ---------- */
+.modal-backdrop { animation: fade 0.2s ease both; }
+.modal-panel { animation: pop 0.25s ease both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Toast ---------- */
+#toast {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+#toast.show { opacity: 1; transform: none; }
+
+/* ---------- Pattern for the law-imagery band ---------- */
+.pillars-bg {
+  background-color: #f1f5fb;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(23, 59, 117, 0.05) 0 2px,
+    transparent 2px 36px
+  );
+}
+
+/* ---------- High contrast mode (accessibility) ---------- */
+html.hc body { background: #000; color: #fff; }
+html.hc .bg-white,
+html.hc .bg-slate-50,
+html.hc .bg-slate-100,
+html.hc .gov-card,
+html.hc .pillars-bg { background: #000 !important; color: #fff !important; }
+html.hc .text-slate-500, html.hc .text-slate-600, html.hc .text-slate-700,
+html.hc .text-slate-800, html.hc .text-navy-900, html.hc .text-navy-800,
+html.hc .text-navy-700 { color: #fff !important; }
+html.hc .border, html.hc .gov-card, html.hc .border-slate-200,
+html.hc .border-slate-300 { border-color: #ffeb3b !important; }
+html.hc a { color: #ffeb3b !important; }
+html.hc .hero-bg, html.hc .bg-navy-900, html.hc .bg-navy-800,
+html.hc .bg-navy-700 { background: #000 !important; border: 1px solid #ffeb3b; }
+html.hc mark.kw { background: #ffeb3b; color: #000; }
+html.hc .complaint-box { background: #000; color: #fff; border-color: #ffeb3b; }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
