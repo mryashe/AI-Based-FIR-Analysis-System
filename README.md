@@ -36,7 +36,7 @@ At FIR registration, the applicable BNS sections are not always known immediatel
 |---|---|
 | Language | Python |
 | AI / NLP | ML / DL, text classification, NER, embeddings, optional LLM |
-| Frontend | HTML, CSS, JavaScript / React |
+| Frontend | HTML, CSS, JavaScript  |
 | Backend | Django  |
 | Database | MySQL / MongoDB |
 | Explainability | XAI methods |
