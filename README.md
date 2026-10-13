@@ -1,3 +1,4 @@
+<img width="8192" height="5464" alt="pexels-dpsinghbhullar-30483132" src="https://github.com/user-attachments/assets/d1548c74-b61b-4593-9ac2-f985d1b7680e" />
 # ⚖️ AI-Based FIR Analysis System for Automatic Identification of Applicable BNS Sections
 
 An AI/NLP web app that reads a crime description in plain language and instantly suggests the relevant **Bharatiya Nyaya Sanhita (BNS)** sections, with a simple explanation, the punishment, and the reason each section was suggested.
@@ -69,5 +70,5 @@ Suggestions only, not legal advice. Final section selection must be made by a qu
 - Similar past-case recommendations
 
 ## 📜 License
+<img width="8192" height="5464" alt="pexels-dpsinghbhullar-30483132" src="https://github.com/user-attachments/assets/83578102-ce83-4909-b023-5ebfe04969c4" />
 
-MIT (change if needed)
