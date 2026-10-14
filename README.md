@@ -59,6 +59,5 @@ Suggestions only, not legal advice. Final section selection must be made by a qu
 - Integration with police record-management systems
 - Similar past-case recommendations
 
-## 📜 License
-<img width="8192" height="5464" alt="pexels-dpsinghbhullar-30483132" src="https://github.com/user-attachments/assets/83578102-ce83-4909-b023-5ebfe04969c4" />
+
 
